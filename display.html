@@ -1,0 +1,444 @@
+
+<html>
+	<head>
+	<link href="https://cdn.jsdelivr.net/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/icheck/1.0.2/skins/flat/blue.min.css">
+	<link rel="stylesheet" type="text/css" href="./lib/css/jquery.bs_pagination.min.css">
+	<style type="text/css">
+		span.del {
+	        color: #e2534f;
+	        text-decoration: line-through;
+	    }
+	    b.correct{
+	    	color: #28b473;
+	    }
+	    a.link-errors {border-bottom: 1px dotted red; text-decoration: none;}
+	    div.navbar-pagination {
+	    	padding: 8px 8px;
+	    }
+	    div.under-navbar {
+	    	padding-top: 100px;
+	    }
+	    .sidebar-outer {
+		    position: relative;
+		}
+		p i{
+			color:#808080;
+		}
+		@media (min-width: 768px) {
+		    .sidebar {
+		        position: fixed;
+		        overflow-y: scroll;
+		        height:100%;
+		    }
+		}
+		@media (max-width: 999px) {
+		    .hideonmobile {
+		        display: none;
+		    }
+		}
+	</style>
+	
+	</head>
+	<body>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-12">
+				<nav class="navbar navbar-default navbar-fixed-top">
+					<div class="container-fluid">
+						<div class="col-md-5">
+							<a class="navbar-brand" href="#">Grammatical Error Correction (GEC)</a>
+							
+						</div>
+
+						<div id="pagination"></div>
+					</div>
+				</nav>
+			</div>
+		</div>
+		<div class="row under-navbar">
+			<div class="col-md-9"><div id="demo" style="min-width: 310px; margin: 0 auto"></div></div>
+				<div class="dropdown">
+							  <a id="dLabel" data-target="#" href="http://example.com" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							    Dropdown trigger
+							    <span class="caret"></span>
+							  </a>
+
+							  <ul class="dropdown-menu" aria-labelledby="dLabel">
+							    <li>Coffee</li>
+								  <li>Tea</li>
+								  <li>Milk</li>
+							  </ul>
+				</div>
+			<div class="col-md-3 sidebar-outer" >
+				<div id="checkbox" class="sidebar">
+					<!-- <div><label><input class="errtype" type="checkbox" checked id="vb"> Verb tense</label></div>
+					
+					<input type="checkbox" checked>
+					<input type="checkbox" checked>
+					<input type="checkbox" checked>
+					<input type="checkbox" checked>
+					<input type="checkbox" checked> -->
+				</div>
+			</div>
+		</div>
+	</div>
+	 
+	</body>
+ 
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/icheck/1.0.2/icheck.min.js"></script>
+<!--  PAGINATION plugin -->
+<script type="text/javascript" src="./lib/js/jquery.bs_pagination.min.js"></script>
+<script type="text/javascript" src="./lib/js/localization/en.min.js"></script>
+<script type="text/javascript">
+
+	var dic_abb = ["Vt","Vm" ,"V0","Vform","SVA","ArtOrDet","Nn","Npos","Pform","Pref","Prep","Wci","Wa","Wform","Wtone","Srun","Smod","Spar","Sfrag","Ssub","WOinc","WOadv","Trans","Mec","Rloc-","Cit","Others","Um"];
+	var dic_vob = ["Verb tense","Verb modal","Missing verb","Verb form","Subject-verb-agreement","Article or Determiner","Noun number","Noun possesive","Pronoun form","Pronoun reference","Preposition","Wrong collocation/idiom/preposition","Acronyms","Word form","Tone","Runons, comma splice","Dangling modifier","Parallelism","Fragment","Subordinate clause","Incorrect sentence form","Adverb/adjective position","Link word/phrases","Punctuation, capitalization, spelling, typos","Local redundancy","Citation","Other errors","Unclear meaning"];
+
+	var title;
+	var par = [];
+	var doc_id;
+	var docarray;
+
+	//mistakes
+	var teacher_id;
+	var start_par = [];
+	var start_off = [];
+	var end_par = [];
+	var end_off = [];
+
+	var correction = [];
+	var errortype = [];
+	var errSet = new Set();
+
+	$(document).ready(function(){
+
+		var sgml = "official-2014.0.sgml";
+		// var sgml = "text.sgml";
+		display_file(sgml);		
+		$('.dropdown-toggle').dropdown();
+
+	});
+
+
+	function display_file(filename){
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+		    if (xhttp.readyState == 4 && xhttp.status == 200) {
+		    	
+		    	var xmlDoc = xhttp.responseText;
+			    docarray = xmlDoc.split("\n\n");
+			 //    var id = 0;
+			 //    var xmlString = docarray[id];
+				// var xmlDataObj = convertToXML(xmlString);
+				// parseXML(xmlDataObj);
+
+				$("#pagination").bs_pagination({
+					currentPage: 1,
+					totalPages: docarray.length,
+
+					visiblePageLinks: 5,
+
+					showGoToPage: true,
+					showRowsPerPage: false,
+					showRowsInfo: false,
+					showRowsDefaultInfo: false,
+
+					directURL: false, // or a function with current page as argument
+					disableTextSelectionInNavPane: true, // disable text selection and double click
+
+					bootstrap_version: "3",
+
+					// bootstrap 3
+					containerClass: "col-md-7 navbar-pagination",
+
+					navListContainerClass: "col-lg-10 col-md-9 col-sm-4",
+					navListWrapperClass: "pull-right",
+					navListClass: "pagination pagination_custom",
+					navListActiveItemClass: "active",
+
+					navGoToPageContainerClass: "col-lg-2 col-md-3 col-sm-2",
+					navGoToPageIconClass: "glyphicon glyphicon-arrow-right",
+					navGoToPageClass: "form-control small-input",
+
+					// element IDs
+					nav_list_id_prefix: "nav_list_",
+					nav_top_id_prefix: "top_",
+					nav_prev_id_prefix: "prev_",
+					nav_item_id_prefix: "nav_item_",
+					nav_next_id_prefix: "next_",
+					nav_last_id_prefix: "last_",
+
+					nav_goto_page_id_prefix: "goto_page_",
+
+					onChangePage: function(event, data) {
+						renderPaper(data.currentPage-1);
+					},
+					onLoad: function() { // returns page_num and rows_per_page on plugin load
+					}
+				});
+
+		        renderPaper(0);  
+				
+		    }
+		};
+		xhttp.open("GET", filename, true);
+		xhttp.send();
+	}
+
+	function renderPaper(id) {
+
+		// clean up
+		$('.popover').popover('hide');
+		document.getElementById("demo").innerHTML = "";
+		document.getElementById("checkbox").innerHTML = "";
+		
+		var xmlString = docarray[id];
+		var xmlDataObj = convertToXML(xmlString);
+		par = []; // clean up xml cache
+		start_par = [];
+		start_off = [];
+		end_par = [];
+		end_off = [];
+		correction = [];
+		errortype = [];
+		errSet = new Set();
+		parseXML(xmlDataObj);
+	}
+
+
+	function parseXML(xml){
+		var hasTitle = false;
+		// console.log(xml);
+		doc_id = xml.getElementsByTagName('DOC')[0].getAttribute("nid");
+		if (xml.getElementsByTagName('parsererror').length > 0) {
+			alert("Parser Error! DOC ID: "+doc_id);
+		}
+		if(xml.getElementsByTagName('TITLE').length > 0) {
+			par.push(xml.getElementsByTagName('TITLE')[0].textContent);
+			hasTitle = true;
+		}
+
+        // document.getElementById("demo").innerHTML += '<p><b>'+title+'</b></p>';
+
+		var t = xml.getElementsByTagName('P');
+
+		for(i = 0; i < t.length; i++){
+			par_text = t[i].textContent;
+			if (t[i].parentNode.tagName == 'REFERENCE')
+				par_text = '<i>' + par_text + '</i>';
+			par.push(par_text);
+			// document.getElementById("demo").innerHTML += '<p pid='+i+'>'+par[i]+'</p>';
+			// console.log(par[i]);
+		}
+		// console.log(xml.getElementsByTagName('ANNOTATION'));
+		teacher_id = xml.getElementsByTagName('ANNOTATION')[0].getAttribute("teacher_id");
+
+		var n = xml.getElementsByTagName('MISTAKE');
+
+		for(i = 0; i < n.length; i++){
+			start_par.push(n[i].getAttribute("start_par"));
+			start_off.push(n[i].getAttribute("start_off")) ;
+			end_par.push(n[i].getAttribute("end_par")) ;
+			end_off.push(n[i].getAttribute("end_off")) ;
+			errortype.push(n[i].getElementsByTagName('TYPE')[0].textContent);
+			errSet.add(n[i].getElementsByTagName('TYPE')[0].textContent);
+			correction.push(n[i].getElementsByTagName('CORRECTION')[0].textContent);
+		}
+
+		var count;
+		var par_n = par.slice();
+		var last_start = Number.MAX_SAFE_INTEGER;
+		var last_par = 0;
+		for(i = n.length-1; i >= 0; i--){
+			// ignore crossed corrections for now
+			if(end_off[i] > last_start && last_par == start_par[i]) continue;
+
+			count = start_par[i];
+
+			if(par_n[count].lastIndexOf('<i>', 0) === 0) continue;
+
+			// par_n[count-1] = replaceChar(par[count-1],par_n[count-1],start_off[i],end_off[i]);
+			par_n[count] = replaceChar(i,par[count],par_n[count],start_off[i],end_off[i]);
+
+			// mark location
+			last_start = start_off[i];
+			last_par = start_par[i];
+		}
+
+		if(hasTitle)
+			par_n[0] = '<b>'+par_n[0]+'</b>';
+			
+		for(i = 0; i < par_n.length; i++)
+			document.getElementById("demo").innerHTML += '<p pid='+i+'>'+par_n[i]+'</p>';
+
+		// console.log(start_par);
+		// console.log(start_off);
+		// console.log(end_par);
+		// console.log(end_off);
+		// console.log(errortype);
+		// for (let item of errSet) console.log(item);
+
+
+		showCheckboxList();
+
+		
+		$('.errtype').on('ifChecked', function(event){
+			addErr(this.id);
+			// alert(event.type + ' callback');
+		});
+
+		$('.errtype').on('ifUnchecked', function(event){
+			removeErr(this.id);
+		});
+
+		$('.allerrtype').on('ifChecked', function(event){
+			$('.errtype').each(function(){
+				$(this).iCheck('check');;
+			});
+		});
+
+		$('.allerrtype').on('ifUnchecked', function(event){
+			$('.errtype').each(function(){
+				$(this).iCheck('uncheck');;
+			});
+		});
+
+		activatePopover();
+		
+	}
+
+	function activatePopover(){
+		$('[data-toggle="popover"]').popover()
+		$('body').on('click', function (e) {
+		    $('[data-toggle="popover"]').each(function () {
+		        //the 'is' for buttons that trigger popups
+		        //the 'has' for icons within a button that triggers a popup
+		        if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {                
+		            (($(this).popover('hide').data('bs.popover')||{}).inState||{}).click = false  // fix for BS 3.3.6
+		        }
+		    });
+		});
+	}
+
+	function removeErr(id){
+		if(errSet.has(id)){
+			var cusid_ele = document.getElementsByClassName(id);
+			for (var i = 0; i < cusid_ele.length; i++) {
+			    var item = cusid_ele[i];  
+
+			    var temp = item.innerHTML;
+			    item.innerHTML = item.getAttribute("content");
+			    item.setAttribute("temp",temp);
+			}
+			activatePopover();
+		}
+	}
+
+	function addErr(id){
+		if(errSet.has(id)){
+			var cusid_ele = document.getElementsByClassName(id);
+			for (var i = 0; i < cusid_ele.length; i++) {
+			    var item = cusid_ele[i];  
+			    // console.log(item.getAttribute("temp"));
+			    item.innerHTML = item.getAttribute("temp");		    
+			}
+			activatePopover();
+		}
+	}
+
+	function showCheckboxList(){
+		document.getElementById("checkbox").innerHTML += '<b> Document ID: '+doc_id+'</b><br /><br />';
+		for (i=0;i<dic_vob.length;i++){
+			var name = dic_vob[i];
+			var id = dic_abb[i];
+			if(errSet.has(id))
+				document.getElementById("checkbox").innerHTML += '<div><label><input class="errtype" type="checkbox" checked id='+id+'> '+name+'</label></div>';
+		}
+		document.getElementById("checkbox").innerHTML += '<div><label><input class="allerrtype" type="checkbox" checked id="all"> '+"All"+'</label></div>';
+
+		  $('input').iCheck({
+		    checkboxClass: 'icheckbox_flat-blue'
+		  });
+		
+	}
+
+	function replaceChar(index,str,temp,head,tail){
+		// console.log(index);
+		// console.log(str);
+		var subs = str.substring(parseInt(head)+1, parseInt(tail)+1);
+		// console.log(subs);
+
+		var sub_head = temp.substring(0,parseInt(head)+1);
+		var sub_tail = temp.substring(parseInt(tail)+1);
+		// console.log("sub_head: "+sub_head);
+		// console.log("sub_tail: "+sub_tail);
+
+		var res = sub_head+"<span class =\""+errortype[index]+"\" content = \""+subs+"\"><a href=\"javascript:void(0)\" data-toggle=\"popover\" data-container=\"body\" data-html=\"true\" data-content=\""+content(subs,index)+"\" title=\""+tooltipTitle(index)+"\" class=\"link-errors\">"+subs+"</a></span>"+sub_tail;
+		// console.log(res);
+		// var res = temp.replace(subs,"<span class =\""+errortype[index]+"\" content = \""+subs+"\"><a href=\"javascript:void(0)\" data-toggle=\"popover\" data-trigger=\"focus\" data-html=\"true\" data-content=\""+content(subs,index)+"\" title=\""+tooltipTitle(index)+"\">"+subs+"</a></span>");
+		return res;
+	}
+
+	function tooltipTitle(i){
+
+		var index = dic_abb.indexOf(errortype[i]);
+		// console.log(errortype[i]);
+
+		return "<b>"+dic_vob[index]+"</b>";
+	}
+
+	function content(vari,i){
+		var index = dic_abb.indexOf(errortype[i]);
+		
+		if(correction[i].length>0)
+			return "<b class='correct'>"+htmlEntities(correction[i])+"</b><br />(teacher ID: "+teacher_id+")";
+		else if(dic_vob[index]=="Unclear meaning")
+			return "<b>Cannot be corrected </b><br />(teacher ID: "+teacher_id+")";
+		else
+			return "<span class='del'><b>"+vari+"</b></span><br />(teacher ID: "+teacher_id+")";
+		// return "Recommended correction: "+vari+"<br />(teacher ID: "+teacher_id+")";
+	}
+
+
+	function convertToXML(val){
+	    if (window.DOMParser)
+	      {
+	        parser=new DOMParser();
+	        xmlDoc=parser.parseFromString(val,"text/html");
+	      }
+	    else // Internet Explorer
+	      {
+	        xmlDoc = new ActiveXObject("Microsoft.XMLDOM"); xmlDoc.loadXML(val);
+	      }
+		return xmlDoc ;
+	}
+
+	function htmlEntities(str) {
+	    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+	}
+
+	// var xmlstr = "";
+	// if (window.DOMParser)
+	//   {
+	//     parser = new DOMParser();
+	//     xmlDoc = parser.parseFromString(xmlstr, "text/xml");
+	//   }
+	// else // Internet Explorer
+	//   {
+	//     xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+	//     xmlDoc.async = false;
+	//     xmlDoc.loadXML(xmlstr);
+
+	//   }
+
+	//   // var x = xmlDoc.getElementsByTagName("LLIST")[0].childNodes;
+	//   var y = xmlDoc.getElementsByTagName("streetNumber")[0].childNodes[0].nodeValue;
+
+	//   document.getElementById("demo").innerHTML = y;
+
+</script>
+
+</html>

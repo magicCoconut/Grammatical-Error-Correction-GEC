@@ -1,0 +1,68 @@
+<html>
+	<head>
+	<link href="https://cdn.jsdelivr.net/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/icheck/1.0.2/skins/flat/blue.min.css">
+	<link rel="stylesheet" type="text/css" href="./lib/css/jquery.bs_pagination.min.css">
+	<style type="text/css">
+		span.del {
+	        color: #e2534f;
+	        text-decoration: line-through;
+	    }
+	    b.correct{
+	    	color: #28b473;
+	    }
+	    a.link-errors {border-bottom: 1px dotted red; text-decoration: none;}
+	    div.navbar-pagination {
+	    	padding: 8px 8px;
+	    }
+	    div.under-navbar {
+	    	padding-top: 100px;
+	    }
+	    .sidebar-outer {
+		    position: relative;
+		}
+		p i{
+			color:#808080;
+		}
+		@media (min-width: 768px) {
+		    .sidebar {
+		        position: fixed;
+		        overflow-y: scroll;
+		        height:100%;
+		    }
+		}
+		@media (max-width: 999px) {
+		    .hideonmobile {
+		        display: none;
+		    }
+		}
+	</style>
+	
+	</head>
+	<body>
+						<div class="dropdown">
+							  <a id="dLabel" data-target="#" href="http://example.com" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							    Dropdown trigger
+							    <span class="caret"></span>
+							  </a>
+
+							  <ul class="dropdown-menu" aria-labelledby="dLabel">
+							    <li>Coffee</li>
+								  <li>Tea</li>
+								  <li>Milk</li>
+							  </ul>
+							</div>
+
+							
+	 
+	</body>
+
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/icheck/1.0.2/icheck.min.js"></script>
+<!--  PAGINATION plugin -->
+<script type="text/javascript" src="./lib/js/jquery.bs_pagination.min.js"></script>
+<script type="text/javascript" src="./lib/js/localization/en.min.js"></script>
+<script type="text/javascript">
+$('.dropdown-toggle').dropdown();
+</script>
